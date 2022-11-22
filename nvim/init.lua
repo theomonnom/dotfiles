@@ -28,7 +28,13 @@ require('packer').startup(function(use)
   use 'nvim-tree/nvim-tree.lua'
   use 'j-hui/fidget.nvim'
   use 'akinsho/toggleterm.nvim'
-  use { 'bluz71/vim-moonfly-colors', branch = 'cterm-compat' }
+
+  use 'simrat39/rust-tools.nvim'
+  use 'tomasiser/vim-code-dark'
+
+  -- Debugging
+  use 'nvim-lua/plenary.nvim'
+  use 'mfussenegger/nvim-dap'
 
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
@@ -52,7 +58,7 @@ if is_bootstrap then
   return
 end
 
-vim.cmd [[colorscheme moonfly]]
+vim.cmd [[colorscheme codedark]]
 -- Automatically source and re-compile packer whenever you save this init.lua
 local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
 vim.api.nvim_create_autocmd('BufWritePost', {
@@ -268,6 +274,8 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 
+
+
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
@@ -324,12 +332,20 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protoc
 require('mason').setup()
 
 -- Enable the following language servers
-local servers = { 'clangd', 'rust_analyzer', 'wgsl_analyzer', 'tsserver' }
+local servers = { 'clangd', 'wgsl_analyzer', 'tsserver' }
 
 -- Ensure the servers above are installed
 require('mason-lspconfig').setup {
   ensure_installed = servers,
 }
+
+local rt = require("rust-tools")
+
+rt.setup({
+  server = {
+    on_attach = on_attach,
+  },
+})
 
 for _, lsp in ipairs(servers) do
   require('lspconfig')[lsp].setup {
@@ -337,34 +353,6 @@ for _, lsp in ipairs(servers) do
     capabilities = capabilities,
   }
 end
-
--- Example custom configuration for lua
---
--- Make runtime files discoverable to the server
-local runtime_path = vim.split(package.path, ';')
-table.insert(runtime_path, 'lua/?.lua')
-table.insert(runtime_path, 'lua/?/init.lua')
-
-require('lspconfig').sumneko_lua.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-      runtime = {
-        -- Tell the language server which version of Lua you're using (most likely LuaJIT)
-        version = 'LuaJIT',
-        -- Setup your lua path
-        path = runtime_path,
-      },
-      diagnostics = {
-        globals = { 'vim' },
-      },
-      workspace = { library = vim.api.nvim_get_runtime_file('', true) },
-      -- Do not send telemetry data containing a randomized but unique identifier
-      telemetry = { enable = false },
-    },
-  },
-}
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
@@ -412,3 +400,4 @@ cmp.setup {
 require("toggleterm").setup{
   open_mapping = [[<C-\>]],
 }
+
