@@ -107,7 +107,10 @@ vim.o.smartcase = true
 vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
+vim.o.autochdir = true
+
 -- Set colorscheme
+
 vim.o.termguicolors = true
 
 -- Set completeopt to have a better completion experience
@@ -341,11 +344,41 @@ require('mason-lspconfig').setup {
 
 local rt = require("rust-tools")
 
+
+local mason_registry = require("mason-registry")
+local codelldb = mason_registry.get_package("codelldb")
+local extension_path = codelldb:get_install_path()
+local codelldb_path = extension_path .. '/extension/adapter/codelldb.exe'
+local liblldb_path = extension_path .. '/extension/lldb/lib/liblldb.lib'
+
 rt.setup({
   server = {
     on_attach = on_attach,
   },
+  dap = {
+    adapter = {
+      type = 'server',
+      port = "${port}",
+      executable = {
+        command = codelldb_path,
+        args = {"--port", "${port}"},
+        detached = false,
+      }
+    }
+  }
 })
+
+local dap = require('dap')
+
+dap.adapters.codelldb = {
+  type = 'server',
+  port = "${port}",
+  executable = {
+    command = codelldb_path,
+    args = {"--port", "${port}"},
+    detached = false,
+  }
+}
 
 for _, lsp in ipairs(servers) do
   require('lspconfig')[lsp].setup {
@@ -400,4 +433,3 @@ cmp.setup {
 require("toggleterm").setup{
   open_mapping = [[<C-\>]],
 }
-
