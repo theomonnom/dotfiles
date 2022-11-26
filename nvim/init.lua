@@ -28,16 +28,20 @@ require('packer').startup(function(use)
   use 'nvim-tree/nvim-tree.lua'
   use 'j-hui/fidget.nvim'
   use 'akinsho/toggleterm.nvim'
-
+  
   use 'simrat39/rust-tools.nvim'
-  use 'tomasiser/vim-code-dark'
-
+  use { "ellisonleao/gruvbox.nvim" }
   -- Debugging
   use 'nvim-lua/plenary.nvim'
   use 'mfussenegger/nvim-dap'
 
+  
+
+  use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
+
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
+  use { 'nvim-telescope/telescope-dap.nvim' }
 
   if is_bootstrap then
     require('packer').sync()
@@ -58,7 +62,6 @@ if is_bootstrap then
   return
 end
 
-vim.cmd [[colorscheme codedark]]
 -- Automatically source and re-compile packer whenever you save this init.lua
 local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
 vim.api.nvim_create_autocmd('BufWritePost', {
@@ -191,6 +194,7 @@ require('telescope').setup {
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
+require('telescope').load_extension('dap')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
@@ -433,3 +437,96 @@ cmp.setup {
 require("toggleterm").setup{
   open_mapping = [[<C-\>]],
 }
+
+local dap, dapui = require("dap"), require("dapui")
+dap.listeners.after.event_initialized["dapui_config"] = function()
+  dapui.open()
+end
+dapui.setup()
+
+vim.keymap.set("n", "<leader>dC", require("dap").continue, { desc = "DAP: Continue" })
+vim.keymap.set("n", "<leader>db", require("dap").toggle_breakpoint, { desc = "DAP: Toggle breackpoint" })
+
+vim.keymap.set("n", "<leader>dB", function()
+    require("dap").set_breakpoint(fn.input("Breakpoint condition: "))
+end, { desc = "DAP: Set breakpoint" })
+
+vim.keymap.set("n", "<leader>do", require("dap").step_over, { desc = "DAP: Step over" })
+vim.keymap.set("n", "<leader>dO", require("dap").step_out, { desc = "DAP: Step out" })
+vim.keymap.set("n", "<leader>dn", require("dap").step_into, { desc = "DAP: Step into" })
+vim.keymap.set("n", "<leader>dN", require("dap").step_back, { desc = "DAP: Step back" })
+vim.keymap.set("n", "<leader>dr", require("dap").repl.toggle, { desc = "DAP: Toggle REPL" })
+vim.keymap.set("n", "<leader>d.", require("dap").goto_, { desc = "DAP: Go to" })
+vim.keymap.set("n", "<leader>dh", require("dap").run_to_cursor, { desc = "DAP: Run to cursor" })
+vim.keymap.set("n", "<leader>de", require("dap").set_exception_breakpoints, { desc = "DAP: Set exception breakpoints" })
+vim.keymap.set("n", "<leader>dv", function()
+    require("telescope").extensions.dap.variables()
+end, { desc = "DAP-Telescope: Variables" })
+
+vim.keymap.set("n", "<leader>dc", function()
+    require("telescope").extensions.dap.commands()
+end, { desc = "DAP-Telescope: Commands" })
+
+vim.keymap.set({ "n", "x" }, "<leader>dx", require("dapui").eval, { desc = "DAP-UI: Eval" })
+
+vim.keymap.set("n", "<leader>dX", function()
+    dapui.eval(fn.input("expression: "), {})
+end, { desc = "DAP-UI: Eval expression" })
+
+-- From https://github.com/arturgoms/nvim
+require("gruvbox").setup({
+	undercurl = true,
+	underline = true,
+	bold = true,
+	italic = true,
+	strikethrough = true,
+	invert_selection = false,
+	invert_signs = false,
+	invert_tabline = false,
+	invert_intend_guides = false,
+	inverse = true, -- invert background for search, diffs, statuslines and errors
+	contrast = "hard", -- can be "hard", "soft" or empty string
+	overrides = {},
+	dim_inactive = false,
+	transparent_mode = false,
+	palette_overrides = {
+		dark0_hard = "#0A0E14",
+		dark0 = "#282828",
+		dark0_soft = "#32302f",
+		dark1 = "#00010A",
+		dark2 = "#504945",
+		dark3 = "#665c54",
+		dark4 = "#7c6f64",
+		light0_hard = "#f9f5d7",
+		light0 = "#fbf1c7",
+		light0_soft = "#f2e5bc",
+		light1 = "#ebdbb2",
+		light2 = "#d5c4a1",
+		light3 = "#bdae93",
+		light4 = "#a89984",
+		bright_red = "#fb4934",
+		bright_green = "#b8bb26",
+		bright_yellow = "#fabd2f",
+		bright_blue = "#83a598",
+		bright_purple = "#d3869b",
+		bright_aqua = "#8ec07c",
+		bright_orange = "#fe8019",
+		neutral_red = "#cc241d",
+		neutral_green = "#98971a",
+		neutral_yellow = "#d79921",
+		neutral_blue = "#458588",
+		neutral_purple = "#b16286",
+		neutral_aqua = "#689d6a",
+		neutral_orange = "#d65d0e",
+		faded_red = "#9d0006",
+		faded_green = "#79740e",
+		faded_yellow = "#b57614",
+		faded_blue = "#076678",
+		faded_purple = "#8f3f71",
+		faded_aqua = "#427b58",
+		faded_orange = "#af3a03",
+		gray = "#928374",
+	},
+})
+
+vim.cmd([[colorscheme gruvbox]])
