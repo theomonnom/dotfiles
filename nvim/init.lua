@@ -35,7 +35,7 @@ require('packer').startup(function(use)
   use 'nvim-lua/plenary.nvim'
   use 'mfussenegger/nvim-dap'
 
-  
+  use "windwp/nvim-autopairs"
 
   use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 
@@ -95,8 +95,13 @@ vim.g.loaded_netrwPlugin = 1
 require("nvim-tree").setup({
   open_on_setup = true,
   update_focused_file = {
-    enable = false,
-    update_cwd = false,
+    enable = true,
+    update_cwd = true,
+    update_root = true,
+  },
+  git = {
+    enable = true,
+    ignore = false,
   },
 })
 
@@ -110,9 +115,9 @@ vim.o.smartcase = true
 vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
-vim.o.autochdir = true
-
 -- Set colorscheme
+
+vim.o.autochdir = true
 
 vim.o.termguicolors = true
 
@@ -156,6 +161,8 @@ require('lualine').setup {
     section_separators = '',
   },
 }
+
+require("nvim-autopairs").setup()
 
 -- Enable Comment.nvim
 require('Comment').setup()
@@ -530,3 +537,4 @@ require("gruvbox").setup({
 })
 
 vim.cmd([[colorscheme gruvbox]])
+
