@@ -36,6 +36,7 @@ require('packer').startup(function(use)
   use 'mfussenegger/nvim-dap'
 
   use "windwp/nvim-autopairs"
+  use "rcarriga/nvim-notify"
 
   use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 
@@ -47,6 +48,7 @@ require('packer').startup(function(use)
     require('packer').sync()
   end
 end)
+
 -- stylua: ignore end
 
 -- When we are bootstrapping a configuration, it doesn't
@@ -61,6 +63,9 @@ if is_bootstrap then
   print '=================================='
   return
 end
+
+vim.notify = require("notify")
+
 
 -- Automatically source and re-compile packer whenever you save this init.lua
 local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
@@ -93,6 +98,7 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 require("nvim-tree").setup({
+  sort_by = "extension",
   open_on_setup = true,
   update_focused_file = {
     enable = false,
@@ -101,7 +107,13 @@ require("nvim-tree").setup({
     enable = true,
     ignore = false,
   },
+  filesystem_watchers = {
+    ignore_dirs = {
+      "target" -- Rust builds
+    }
+  }
 })
+
 
 require("fidget").setup()
 
