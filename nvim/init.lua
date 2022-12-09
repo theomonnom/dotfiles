@@ -84,6 +84,8 @@ vim.o.hlsearch = false
 -- Make line numbers default
 vim.wo.number = true
 
+vim.o.relativenumber = true
+
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
