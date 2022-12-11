@@ -38,6 +38,7 @@ require('packer').startup(function(use)
   use "windwp/nvim-autopairs"
   use "rcarriga/nvim-notify"
 
+  use { 'phaazon/hop.nvim', branch = 'v2' }
   use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 
   -- Fuzzy Finder (files, lsp, etc)
@@ -64,9 +65,6 @@ if is_bootstrap then
   return
 end
 
-vim.notify = require("notify")
-
-
 -- Automatically source and re-compile packer whenever you save this init.lua
 local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
 vim.api.nvim_create_autocmd('BufWritePost', {
@@ -74,6 +72,9 @@ vim.api.nvim_create_autocmd('BufWritePost', {
   group = packer_group,
   pattern = vim.fn.expand '$MYVIMRC',
 })
+
+vim.notify = require("notify")
+
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -116,6 +117,7 @@ require("nvim-tree").setup({
   }
 })
 
+require("hop").setup({ keys = 'qweriopjk' })
 
 require("fidget").setup()
 
@@ -150,6 +152,8 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+vim.keymap.set("n", "<leader>we", require('hop').hint_words, { desc = "HopWord" })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -234,9 +238,11 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
+
+require('nvim-treesitter.install').compilers = { "zig", vim.fn.getenv('CC'), "cc", "gcc", "clang", "cl" }
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'wgsl', 'rust', 'typescript' },
 
   highlight = { enable = true },
   indent = { enable = true },
@@ -366,8 +372,6 @@ require('mason-lspconfig').setup {
 }
 
 local rt = require("rust-tools")
-
-
 local mason_registry = require("mason-registry")
 local codelldb = mason_registry.get_package("codelldb")
 local extension_path = codelldb:get_install_path()
@@ -407,6 +411,7 @@ for _, lsp in ipairs(servers) do
   require('lspconfig')[lsp].setup {
     on_attach = on_attach,
     capabilities = capabilities,
+    autostart = true
   }
 end
 
