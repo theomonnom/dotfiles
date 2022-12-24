@@ -30,7 +30,9 @@ require('packer').startup(function(use)
   use 'akinsho/toggleterm.nvim'
   
   use 'simrat39/rust-tools.nvim'
-  use { "ellisonleao/gruvbox.nvim" }
+  use 'github/copilot.vim'
+
+  use 'agude/vim-eldar'
   -- Debugging
   use 'nvim-lua/plenary.nvim'
   use 'mfussenegger/nvim-dap'
@@ -238,14 +240,18 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
-
-require('nvim-treesitter.install').compilers = { "zig", vim.fn.getenv('CC'), "cc", "gcc", "clang", "cl" }
+require('nvim-treesitter.install').prefer_git = false
+require('nvim-treesitter.install').compilers = { "zig", "cc", "gcc", "clang", "cl", }
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'wgsl', 'rust', 'typescript' },
-
-  highlight = { enable = true },
-  indent = { enable = true },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'rust' },
+  highlight = {
+    enable = true,
+    use_languagetree = true,
+  },
+  indent = {
+    enable = true,
+  },
   incremental_selection = {
     enable = true,
     keymaps = {
@@ -425,36 +431,49 @@ cmp.setup {
       luasnip.lsp_expand(args.body)
     end,
   },
-  mapping = cmp.mapping.preset.insert {
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<CR>'] = cmp.mapping.confirm {
+  mapping = {
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
+    ["<C-n>"] = cmp.mapping.select_next_item(),
+    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-f>"] = cmp.mapping.scroll_docs(4),
+    ["<C-Space>"] = cmp.mapping.complete(),
+    ["<C-e>"] = cmp.mapping.close(),
+    ["<CR>"] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
+      select = false,
     },
-    ['<Tab>'] = cmp.mapping(function(fallback)
+    ["<Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
+      elseif require("luasnip").expand_or_jumpable() then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-expand-or-jump", true, true, true), "")
       else
         fallback()
       end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
+    end, {
+      "i",
+      "s",
+    }),
+    ["<S-Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
+      elseif require("luasnip").jumpable(-1) then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-jump-prev", true, true, true), "")
       else
         fallback()
       end
-    end, { 'i', 's' }),
+    end, {
+      "i",
+      "s",
+    }),
   },
   sources = {
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
+    { name = "luasnip" },
+    { name = "copilot" },
+    { name = "nvim_lsp" },
+    { name = "buffer" },
+    { name = "nvim_lua" },
+    { name = "path" },
   },
 }
 
@@ -497,61 +516,6 @@ vim.keymap.set("n", "<leader>dX", function()
     dapui.eval(fn.input("expression: "), {})
 end, { desc = "DAP-UI: Eval expression" })
 
--- From https://github.com/arturgoms/nvim
-require("gruvbox").setup({
-	undercurl = true,
-	underline = true,
-	bold = true,
-	italic = true,
-	strikethrough = true,
-	invert_selection = false,
-	invert_signs = false,
-	invert_tabline = false,
-	invert_intend_guides = false,
-	inverse = true, -- invert background for search, diffs, statuslines and errors
-	contrast = "hard", -- can be "hard", "soft" or empty string
-	overrides = {},
-	dim_inactive = false,
-	transparent_mode = false,
-	palette_overrides = {
-		dark0_hard = "#0A0E14",
-		dark0 = "#282828",
-		dark0_soft = "#32302f",
-		dark1 = "#00010A",
-		dark2 = "#504945",
-		dark3 = "#665c54",
-		dark4 = "#7c6f64",
-		light0_hard = "#f9f5d7",
-		light0 = "#fbf1c7",
-		light0_soft = "#f2e5bc",
-		light1 = "#ebdbb2",
-		light2 = "#d5c4a1",
-		light3 = "#bdae93",
-		light4 = "#a89984",
-		bright_red = "#fb4934",
-		bright_green = "#b8bb26",
-		bright_yellow = "#fabd2f",
-		bright_blue = "#83a598",
-		bright_purple = "#d3869b",
-		bright_aqua = "#8ec07c",
-		bright_orange = "#fe8019",
-		neutral_red = "#cc241d",
-		neutral_green = "#98971a",
-		neutral_yellow = "#d79921",
-		neutral_blue = "#458588",
-		neutral_purple = "#b16286",
-		neutral_aqua = "#689d6a",
-		neutral_orange = "#d65d0e",
-		faded_red = "#9d0006",
-		faded_green = "#79740e",
-		faded_yellow = "#b57614",
-		faded_blue = "#076678",
-		faded_purple = "#8f3f71",
-		faded_aqua = "#427b58",
-		faded_orange = "#af3a03",
-		gray = "#928374",
-	},
-})
+vim.cmd[[colorscheme eldar]]
 
-vim.cmd([[colorscheme gruvbox]])
-
+vim.g.copilot_assume_mapped = true
