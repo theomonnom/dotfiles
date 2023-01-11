@@ -31,8 +31,11 @@ require('packer').startup(function(use)
   
   use 'simrat39/rust-tools.nvim'
   use 'github/copilot.vim'
+  use {
+    "jesseleite/nvim-noirbuddy",
+    requires = { "tjdevries/colorbuddy.nvim", branch = "dev" }
+  }
 
-  use 'agude/vim-eldar'
   -- Debugging
   use 'nvim-lua/plenary.nvim'
   use 'mfussenegger/nvim-dap'
@@ -244,7 +247,7 @@ require('nvim-treesitter.install').prefer_git = false
 require('nvim-treesitter.install').compilers = { "zig", "cc", "gcc", "clang", "cl", }
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'rust' },
+  ensure_installed = { 'c', 'cpp', 'proto', 'go', 'lua', 'rust' },
   highlight = {
     enable = true,
     use_languagetree = true,
@@ -469,7 +472,6 @@ cmp.setup {
   },
   sources = {
     { name = "luasnip" },
-    { name = "copilot" },
     { name = "nvim_lsp" },
     { name = "buffer" },
     { name = "nvim_lua" },
@@ -516,6 +518,10 @@ vim.keymap.set("n", "<leader>dX", function()
     dapui.eval(fn.input("expression: "), {})
 end, { desc = "DAP-UI: Eval expression" })
 
-vim.cmd[[colorscheme eldar]]
+require('noirbuddy').setup {
+  colors = {
+    primary = '#3291a8',
+  },
+}
 
 vim.g.copilot_assume_mapped = true
