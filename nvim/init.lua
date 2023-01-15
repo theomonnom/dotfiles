@@ -104,7 +104,6 @@ vim.g.loaded_netrwPlugin = 1
 
 require("nvim-tree").setup({
   sort_by = "extension",
-  open_on_setup = true,
   git = {
     enable = true,
     ignore = false,
