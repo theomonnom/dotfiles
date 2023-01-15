@@ -24,7 +24,6 @@ require('packer').startup(function(use)
   use 'nvim-lualine/lualine.nvim'                                                      -- Fancier statusline
   use 'lukas-reineke/indent-blankline.nvim'                                            -- Add indentation guides even on blank lines
   use 'tpope/vim-sleuth'                                                               -- Detect tabstop and shiftwidth automatically
-  use 'nvim-tree/nvim-web-devicons'
   use 'nvim-tree/nvim-tree.lua'
   use 'j-hui/fidget.nvim'
   use 'akinsho/toggleterm.nvim'
@@ -90,8 +89,6 @@ vim.o.hlsearch = false
 -- Make line numbers default
 vim.wo.number = true
 
-vim.o.relativenumber = true
-
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
@@ -108,22 +105,35 @@ vim.g.loaded_netrwPlugin = 1
 require("nvim-tree").setup({
   sort_by = "extension",
   open_on_setup = true,
-  update_focused_file = {
-    enable = false,
-  },
   git = {
     enable = true,
     ignore = false,
   },
   filesystem_watchers = {
     ignore_dirs = {
-      "target" -- Rust builds
+      "target"
     }
+  },
+  renderer = {
+    icons = {
+      show = {
+        file = false,
+        folder = false,
+        folder_arrow = true,
+        git = false,
+        modified = false,
+      },
+      glyphs = {
+        folder = {
+          arrow_closed = ">",
+          arrow_open = "|",
+        }
+      }
+    },
   }
 })
 
-require("hop").setup({ keys = 'qweriopjk' })
-
+require("hop").setup()
 require("fidget").setup()
 
 -- Case insensitive searching UNLESS /C or capital in search
@@ -144,9 +154,6 @@ vim.o.termguicolors = true
 vim.o.completeopt = 'menuone,noselect'
 
 -- [[ Basic Keymaps ]]
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -158,7 +165,10 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
-vim.keymap.set("n", "<leader>we", require('hop').hint_words, { desc = "HopWord" })
+vim.keymap.set("n", "s", require('hop').hint_words, { desc = "HopWord" })
+vim.keymap.set("n", "S", require('hop').hint_lines, { desc = "HopLine" })
+
+vim.keymap.set("n", "§", require('nvim-tree.api').tree.toggle, { desc = "Toggle NVimTree" })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -176,8 +186,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- See `:help lualine.txt`
 require('lualine').setup {
   options = {
-    icons_enabled = true,
-    theme = 'onedark',
+    icons_enabled = false,
+    theme = 'wombat',
     component_separators = '|',
     section_separators = '',
   },
@@ -188,22 +198,20 @@ require("nvim-autopairs").setup()
 -- Enable Comment.nvim
 require('Comment').setup()
 
--- Enable `lukas-reineke/indent-blankline.nvim`
--- See `:help indent_blankline.txt`
 require('indent_blankline').setup {
-  char = '┊',
-  show_trailing_blankline_indent = false,
+  show_end_of_line = true,
 }
 
 -- Gitsigns
 -- See `:help gitsigns.txt`
 require('gitsigns').setup {
   signs = {
-    add = { text = '+' },
-    change = { text = '~' },
-    delete = { text = '_' },
-    topdelete = { text = '‾' },
+    add          = { text = '│' },
+    change       = { text = '│' },
+    delete       = { text = '_' },
+    topdelete    = { text = '‾' },
     changedelete = { text = '~' },
+    untracked    = { text = '┆' },
   },
 }
 
@@ -384,8 +392,8 @@ local rt = require("rust-tools")
 local mason_registry = require("mason-registry")
 local codelldb = mason_registry.get_package("codelldb")
 local extension_path = codelldb:get_install_path()
-local codelldb_path = extension_path .. '/extension/adapter/codelldb.exe'
-local liblldb_path = extension_path .. '/extension/lldb/lib/liblldb.lib'
+local codelldb_path = extension_path .. '/extension/adapter/codelldb' -- .exe
+local liblldb_path = extension_path .. '/extension/lldb/lib/liblldb' -- .lib
 
 rt.setup({
   server = {
@@ -520,7 +528,7 @@ end, { desc = "DAP-UI: Eval expression" })
 
 require('noirbuddy').setup {
   colors = {
-    primary = '#3291a8',
+    primary = '#32a852',
   },
 }
 
