@@ -145,9 +145,6 @@ vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
 -- Set colorscheme
-
-vim.o.autochdir = true
-
 vim.o.termguicolors = true
 
 -- Set completeopt to have a better completion experience
