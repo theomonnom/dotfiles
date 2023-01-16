@@ -183,7 +183,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 require('lualine').setup {
   options = {
     icons_enabled = false,
-    theme = 'wombat',
+    theme = 'ayu_light',
     component_separators = '|',
     section_separators = '',
   },
