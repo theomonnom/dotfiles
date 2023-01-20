@@ -26,10 +26,9 @@ require('packer').startup(function(use)
   use 'tpope/vim-sleuth'                                                               -- Detect tabstop and shiftwidth automatically
   use 'nvim-tree/nvim-tree.lua'
   use 'j-hui/fidget.nvim'
+
   use 'akinsho/toggleterm.nvim'
-  
   use 'simrat39/rust-tools.nvim'
-  use 'github/copilot.vim'
   use {
     "jesseleite/nvim-noirbuddy",
     requires = { "tjdevries/colorbuddy.nvim", branch = "dev" }
@@ -200,10 +199,11 @@ require('indent_blankline').setup {
 
 -- Gitsigns
 -- See `:help gitsigns.txt`
+
 require('gitsigns').setup {
   signs = {
-    add          = { text = '│' },
-    change       = { text = '│' },
+    add          = { text = '+' },
+    change       = { text = 'M' },
     delete       = { text = '_' },
     topdelete    = { text = '‾' },
     changedelete = { text = '~' },
@@ -324,12 +324,6 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -337,6 +331,8 @@ local on_attach = function(_, bufnr)
 
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
+
+  vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
@@ -524,9 +520,24 @@ end, { desc = "DAP-UI: Eval expression" })
 
 require('noirbuddy').setup {
   colors = {
-    primary = '#32a852',
+    primary = '#4b5dd1',
     background = '#000000',
   },
 }
 
-vim.g.copilot_assume_mapped = true
+vim.api.nvim_set_hl (0, 'DiagnosticVirtualTextError', {fg="#ff0000"})
+vim.api.nvim_set_hl (0, 'DiagnosticVirtualTextWarn', {fg="#303030"})
+vim.api.nvim_set_hl (0, 'DiagnosticVirtualTextInfo', {fg="#303030"})
+vim.api.nvim_set_hl (0, 'DiagnosticVirtualTextHint', {fg="#303030"})
+
+vim.api.nvim_set_hl (0, 'DiagnosticSignError', {fg="#ff0000"})
+vim.api.nvim_set_hl (0, 'DiagnosticSignWarn', {fg="#707070"})
+vim.api.nvim_set_hl (0, 'DiagnosticSignInfo', {fg="#707070"})
+vim.api.nvim_set_hl (0, 'DiagnosticSignHint', {fg="#707070"})
+
+vim.api.nvim_set_hl (0, 'GitSignsAdd', {fg="#707070"})
+vim.api.nvim_set_hl (0, 'GitSignsChange', {fg="#707070"})
+vim.api.nvim_set_hl (0, 'GitSignsDelete', {fg="#707070"})
+vim.api.nvim_set_hl (0, 'GitSignsChangedelete', {fg="#707070"})
+vim.api.nvim_set_hl (0, 'GitSignsTopdelete', {fg="#707070"})
+vim.api.nvim_set_hl (0, 'GitSignsUntracked', {fg="#707070"})
