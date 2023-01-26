@@ -164,6 +164,7 @@ vim.keymap.set("n", "s", require('hop').hint_words, { desc = "HopWord" })
 vim.keymap.set("n", "S", require('hop').hint_lines, { desc = "HopLine" })
 
 vim.keymap.set("n", "§", require('nvim-tree.api').tree.toggle, { desc = "Toggle NVimTree" })
+vim.keymap.set("n", "~", require('nvim-tree.api').tree.toggle, { desc = "Toggle NVimTree" })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -419,8 +420,9 @@ dap.adapters.codelldb = {
 for _, lsp in ipairs(servers) do
   require('lspconfig')[lsp].setup {
     on_attach = on_attach,
+    use_mono = true,
     capabilities = capabilities,
-    autostart = true
+    autostart = true,
   }
 end
 
