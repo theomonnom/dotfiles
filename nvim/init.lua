@@ -522,7 +522,7 @@ end, { desc = "DAP-UI: Eval expression" })
 
 require('noirbuddy').setup {
   colors = {
-    primary = '#4b5dd1',
+    primary = '#84cc16',
     background = '#000000',
   },
 }
