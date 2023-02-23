@@ -48,6 +48,8 @@ require('packer').startup(function(use)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
   use { 'nvim-telescope/telescope-dap.nvim' }
 
+  use 'zbirenbaum/copilot.lua'
+
   if is_bootstrap then
     require('packer').sync()
   end
@@ -447,33 +449,32 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = false,
     },
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      else
-        fallback()
-      end
-    end, {
-      "i",
-      "s",
-    }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      else
-        fallback()
-      end
-    end, {
-      "i",
-      "s",
-    }),
+		["<Tab>"] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_next_item()
+			elseif luasnip.expand_or_jumpable() then
+				luasnip.expand_or_jump()
+			else
+				fallback()
+			end
+		end, {"i", "s"}),
+
+		["<S-Tab>"] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_prev_item()
+			elseif luasnip.jumpable(-1) then
+				luasnip.jump(-1)
+			else
+				fallback()
+			end
+		end, {"i", "s"}),
   },
   sources = {
-    { name = "luasnip" },
     { name = "nvim_lsp" },
+    { name = "path" },
+    { name = "luasnip" },
     { name = "buffer" },
     { name = "nvim_lua" },
-    { name = "path" },
   },
 }
 
@@ -539,3 +540,19 @@ vim.api.nvim_set_hl (0, 'GitSignsDelete', {fg="#707070"})
 vim.api.nvim_set_hl (0, 'GitSignsChangedelete', {fg="#707070"})
 vim.api.nvim_set_hl (0, 'GitSignsTopdelete', {fg="#707070"})
 vim.api.nvim_set_hl (0, 'GitSignsUntracked', {fg="#707070"})
+
+require("copilot").setup({
+  suggestion = {
+    enabled = true,
+    auto_trigger = true,
+    debounce = 75,
+    keymap = {
+      accept = "<M-l>",
+      accept_word = false,
+      accept_line = false,
+      next = "<M-]>",
+      prev = "<M-[>",
+      dismiss = "<C-]>",
+    },
+  },
+})
