@@ -479,6 +479,10 @@ rt.setup({
     }
 })
 
+vim.keymap.set("n", "em", rt.expand_macro.expand_macro, {
+    desc = "ExpandMacro"
+})
+
 local dap = require('dap')
 
 dap.adapters.codelldb = {
