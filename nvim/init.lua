@@ -41,13 +41,8 @@ require('packer').startup(function(use)
 
     use 'akinsho/toggleterm.nvim'
     use 'simrat39/rust-tools.nvim'
-    use {
-        "jesseleite/nvim-noirbuddy",
-        requires = {
-            "tjdevries/colorbuddy.nvim",
-            branch = "dev"
-        }
-    }
+
+    use 'morhetz/gruvbox'
 
     -- Debugging
     use 'nvim-lua/plenary.nvim'
@@ -115,6 +110,7 @@ vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
@@ -226,7 +222,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 require('lualine').setup {
     options = {
         icons_enabled = false,
-        theme = '16color',
+        theme = 'gruvbox',
         component_separators = '|',
         section_separators = ''
     }
@@ -244,41 +240,11 @@ require('indent_blankline').setup {
 -- Gitsigns
 -- See `:help gitsigns.txt`
 
-require('gitsigns').setup {
-    signs = {
-        add = {
-            text = '+'
-        },
-        change = {
-            text = 'M'
-        },
-        delete = {
-            text = '_'
-        },
-        topdelete = {
-            text = '‾'
-        },
-        changedelete = {
-            text = '~'
-        },
-        untracked = {
-            text = '┆'
-        }
-    }
-}
+require('gitsigns').setup {}
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
-require('telescope').setup {
-    defaults = {
-        mappings = {
-            i = {
-                ['<C-u>'] = false,
-                ['<C-d>'] = false
-            }
-        }
-    }
-}
+require('telescope').setup {}
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
@@ -627,57 +593,7 @@ end, {
     desc = "DAP-UI: Eval expression"
 })
 
-require('noirbuddy').setup {
-    colors = {
-        primary = '#00ffdd',
-        background = '#000000'
-    }
-}
-
-vim.api.nvim_set_hl(0, 'DiagnosticVirtualTextError', {
-    fg = "#ff0000"
-})
-vim.api.nvim_set_hl(0, 'DiagnosticVirtualTextWarn', {
-    fg = "#303030"
-})
-vim.api.nvim_set_hl(0, 'DiagnosticVirtualTextInfo', {
-    fg = "#303030"
-})
-vim.api.nvim_set_hl(0, 'DiagnosticVirtualTextHint', {
-    fg = "#303030"
-})
-
-vim.api.nvim_set_hl(0, 'DiagnosticSignError', {
-    fg = "#ff0000"
-})
-vim.api.nvim_set_hl(0, 'DiagnosticSignWarn', {
-    fg = "#707070"
-})
-vim.api.nvim_set_hl(0, 'DiagnosticSignInfo', {
-    fg = "#707070"
-})
-vim.api.nvim_set_hl(0, 'DiagnosticSignHint', {
-    fg = "#707070"
-})
-
-vim.api.nvim_set_hl(0, 'GitSignsAdd', {
-    fg = "#707070"
-})
-vim.api.nvim_set_hl(0, 'GitSignsChange', {
-    fg = "#707070"
-})
-vim.api.nvim_set_hl(0, 'GitSignsDelete', {
-    fg = "#707070"
-})
-vim.api.nvim_set_hl(0, 'GitSignsChangedelete', {
-    fg = "#707070"
-})
-vim.api.nvim_set_hl(0, 'GitSignsTopdelete', {
-    fg = "#707070"
-})
-vim.api.nvim_set_hl(0, 'GitSignsUntracked', {
-    fg = "#707070"
-})
+vim.cmd.colorscheme "gruvbox"
 
 require("copilot").setup({
     suggestion = {
