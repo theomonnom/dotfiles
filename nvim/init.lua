@@ -18,6 +18,7 @@ require('packer').startup(function(use)
 
 	use 'neovim/nvim-lspconfig'
 	use 'simrat39/rust-tools.nvim'
+	use 'j-hui/fidget.nvim' -- show lsp status
 
 	use {
 		'nvim-telescope/telescope.nvim',
@@ -45,6 +46,7 @@ require('packer').startup(function(use)
     use 'williamboman/mason-lspconfig.nvim'
 
 	use 'github/copilot.vim'
+	use 'christoomey/vim-tmux-navigator'
 
 	if packer_bootstrap then
 		require('packer').sync()
@@ -233,3 +235,9 @@ rustytools.setup({
 		end,
     },
 })
+
+require('fidget').setup {
+	text = {
+		spinner = 'dots_scrolling'
+	}
+}
