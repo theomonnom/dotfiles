@@ -17,7 +17,6 @@ require('packer').startup(function(use)
 	use 'Mofiqul/vscode.nvim' -- theme
 
 	use 'neovim/nvim-lspconfig'
-	use 'simrat39/rust-tools.nvim'
 	use 'j-hui/fidget.nvim' -- show lsp status
 
 	use {
@@ -47,6 +46,10 @@ require('packer').startup(function(use)
 
 	use 'github/copilot.vim'
 	use 'christoomey/vim-tmux-navigator'
+
+	use 'ggandor/leap.nvim'
+
+	use 'saecki/crates.nvim'
 
 	if packer_bootstrap then
 		require('packer').sync()
@@ -79,11 +82,22 @@ vim.keymap.set('n', 'gi', vim.lsp.buf.implementation)
 vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references)
 vim.keymap.set('n', '<leader>ds', require('telescope.builtin').lsp_document_symbols)
 vim.keymap.set('n', '<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols)
+vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers)
+vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep)
+vim.keymap.set('n', '<leader>/', function()
+    require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+        winblend = 10,
+        previewer = false
+    })
+end)
 
 vim.keymap.set('n', 'K', vim.lsp.buf.hover)
 vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help)
 
-vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]] -- Format on save
+vim.keymap.set('n', 'ff', function()
+	vim.cmd.write()
+	vim.lsp.buf.format({ async = false })
+end)
 
 -- Theme
 local c = require('vscode.colors').get_colors()
@@ -180,6 +194,17 @@ local cmp = require('cmp')
 local luasnip = require('luasnip')
 
 cmp.setup {
+    enabled = function()
+		-- disable completion in comments
+		local context = require 'cmp.config.context'
+		-- keep command mode completion enabled when cursor is in a comment
+		if vim.api.nvim_get_mode().mode == 'c' then
+			return true
+		else
+			return not context.in_treesitter_capture("comment") 
+				and not context.in_syntax_group("Comment")
+		end
+	end,
 	confirmation = { completeopt = 'menu,menuone,noinsert' },
     snippet = {
         expand = function(args)
@@ -198,13 +223,14 @@ cmp.setup {
             select = false
         },
     },
-    sources = {
-		{ name = 'nvim_lsp' }, 
-		{ name = 'path' },
-		{ name = 'luasnip' },
-		{ name = 'buffer' },
-		{ name = 'cmdline' }
-	}
+	sources = cmp.config.sources({
+		{ name = "buffer" },
+		{ name = "nvim_lsp" },
+		{ name = "nvim_lsp_signature_help" },
+		{ name = "luasnip" },
+		{ name = "path" },
+		{ name = "crates" }
+	}),	
 }
 
 cmp.setup.cmdline(':', {
@@ -217,7 +243,7 @@ cmp.setup.cmdline(':', {
 
 -- LSP
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-for _, lsp in ipairs({'clangd', 'wgsl_analyzer', 'tsserver', 'omnisharp'}) do
+for _, lsp in ipairs({'clangd', 'rust_analyzer', 'wgsl_analyzer', 'tsserver', 'omnisharp'}) do
 	require('lspconfig')[lsp].setup {
 		--on_attach = on_attach,
 		use_mono = true,
@@ -226,18 +252,24 @@ for _, lsp in ipairs({'clangd', 'wgsl_analyzer', 'tsserver', 'omnisharp'}) do
 	}
 end
 
-local rustytools = require('rust-tools')
-rustytools.setup({
-    server = {
-        on_attach = function(_, bufnr)
-			vim.keymap.set("n", "<C-space>", rustytools.hover_actions.hover_actions, { buffer = bufnr })
-			--vim.keymap.set("n", "<leader>ag", rustytools.code_action_group.code_action_group, { buffer = bufnr })
-		end,
-    },
-})
-
 require('fidget').setup {
 	text = {
 		spinner = 'dots_scrolling'
 	}
+}
+
+-- Leap
+require('leap').add_default_mappings()
+
+-- Crates
+require('crates').setup {
+	text = {
+        loading = ".. Loading",
+        version = "v%s",
+        prerelease = "pr %s",
+        yanked = "y %s",
+        nomatch = "No match",
+        upgrade = "up %s",
+        error = "Error fetching crate",
+    },
 }
