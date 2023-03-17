@@ -14,7 +14,7 @@ local packer_bootstrap = ensure_packer()
 require('packer').startup(function(use)
 	use 'wbthomason/packer.nvim'
 
-	use 'Mofiqul/vscode.nvim' -- theme
+	use { "bluz71/vim-moonfly-colors", as = "moonfly" } -- theme
 
 	use 'neovim/nvim-lspconfig'
 	use 'j-hui/fidget.nvim' -- show lsp status
@@ -50,6 +50,7 @@ require('packer').startup(function(use)
 	use 'ggandor/leap.nvim'
 
 	use 'saecki/crates.nvim'
+	use 'mfussenegger/nvim-dap'
 
 	if packer_bootstrap then
 		require('packer').sync()
@@ -66,6 +67,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.wo.number = true
 vim.wo.relativenumber = true
+vim.opt.termguicolors = true
 
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
@@ -80,6 +82,7 @@ vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
 vim.keymap.set('n', 'gi', vim.lsp.buf.implementation)
 
 vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references)
+vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics)
 vim.keymap.set('n', '<leader>ds', require('telescope.builtin').lsp_document_symbols)
 vim.keymap.set('n', '<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols)
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers)
@@ -95,16 +98,12 @@ vim.keymap.set('n', 'K', vim.lsp.buf.hover)
 vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help)
 
 vim.keymap.set('n', 'ff', function()
-	vim.cmd.write()
 	vim.lsp.buf.format({ async = false })
+	vim.cmd.write()
 end)
 
 -- Theme
-local c = require('vscode.colors').get_colors()
-require('vscode').setup({
-    italic_comments = true,
-    disable_nvimtree_bg = true,
-})
+vim.cmd('colorscheme moonfly')
 
 -- Telescope 
 require('telescope').setup{
