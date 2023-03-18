@@ -3,7 +3,7 @@ local ensure_packer = function()
 	local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
 	if fn.empty(fn.glob(install_path)) > 0 then
 		fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-		vim.cmd [[packadd packer.nvim]]
+		vim.cmd("packadd packer.nvim")
 		return true
 	end
 	return false
@@ -42,7 +42,7 @@ require('packer').startup(function(use)
 	use 'nvim-treesitter/nvim-treesitter-textobjects'
 
 	use 'williamboman/mason.nvim'
-    use 'williamboman/mason-lspconfig.nvim'
+	use 'williamboman/mason-lspconfig.nvim'
 
 	use 'github/copilot.vim'
 	use 'christoomey/vim-tmux-navigator'
@@ -50,7 +50,9 @@ require('packer').startup(function(use)
 	use 'ggandor/leap.nvim'
 
 	use 'saecki/crates.nvim'
+
 	use 'mfussenegger/nvim-dap'
+	use 'rcarriga/nvim-dap-ui'
 
 	if packer_bootstrap then
 		require('packer').sync()
@@ -96,6 +98,8 @@ end)
 
 vim.keymap.set('n', 'K', vim.lsp.buf.hover)
 vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help)
+vim.keymap.set('n', '<leader>d', require("dapui").toggle)
+
 
 vim.keymap.set('n', 'ff', function()
 	vim.lsp.buf.format({ async = false })
@@ -185,7 +189,7 @@ require('nvim-treesitter.configs').setup {
 -- Mason
 require('mason').setup()
 require('mason-lspconfig').setup {
-    ensure_installed = {'clangd', 'wgsl_analyzer', 'tsserver', 'omnisharp'}
+    ensure_installed = { 'clangd', 'wgsl_analyzer', 'tsserver', 'omnisharp'}
 }
 
 -- Autocompletion/cmp
@@ -239,6 +243,37 @@ cmp.setup.cmdline(':', {
 		{ name = 'cmdline' }
 	}
 })
+
+-- DAP
+local mason_registry = require("mason-registry")
+local codelldb = mason_registry.get_package("codelldb")
+local dap = require('dap')
+
+dap.adapters.codelldb = {
+	type = 'server',
+	port = '${port}',
+	executable = {
+		command = codelldb:get_install_path() .. '/extension/adapter/codelldb', -- .exe on Windows?
+		args = {'--port', '${port}'},
+		detached = not vim.fn.has('macunix'),
+	}
+}
+dap.configurations.cpp = {
+	{
+		name = "Launch file",
+		type = "codelldb",
+		request = "launch",
+		program = function()
+			return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+		end,
+		cwd = '${workspaceFolder}',
+		stopOnEntry = false,
+		runInTerminal = true,
+	},
+}
+dap.configurations.rust = dap.configurations.cpp
+
+require("dapui").setup()
 
 -- LSP
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
