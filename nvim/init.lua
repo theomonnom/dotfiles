@@ -268,7 +268,6 @@ dap.configurations.cpp = {
 		end,
 		cwd = '${workspaceFolder}',
 		stopOnEntry = false,
-		runInTerminal = true,
 	},
 }
 dap.configurations.rust = dap.configurations.cpp
