@@ -55,6 +55,7 @@ require('packer').startup(function(use)
 	use 'rcarriga/nvim-dap-ui'
 
 	use 'tpope/vim-sleuth'
+	use 'RRethy/vim-illuminate'
 
 	if packer_bootstrap then
 		require('packer').sync()
@@ -191,7 +192,7 @@ require('nvim-treesitter.configs').setup {
 -- Mason
 require('mason').setup()
 require('mason-lspconfig').setup {
-    ensure_installed = { 'clangd', 'wgsl_analyzer', 'tsserver', 'omnisharp'}
+    ensure_installed = { 'clangd', 'gopls', 'wgsl_analyzer', 'tsserver', 'omnisharp'}
 }
 
 -- Autocompletion/cmp
@@ -278,7 +279,7 @@ require("dapui").setup()
 
 -- LSP
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-for _, lsp in ipairs({'clangd', 'rust_analyzer', 'wgsl_analyzer', 'tsserver', 'omnisharp'}) do
+for _, lsp in ipairs({'clangd', 'gopls', 'rust_analyzer', 'wgsl_analyzer', 'tsserver', 'omnisharp'}) do
 	require('lspconfig')[lsp].setup {
 		--on_attach = on_attach,
 		use_mono = true,
